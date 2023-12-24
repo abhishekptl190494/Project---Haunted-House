@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 
 
 // Canvas
@@ -16,6 +18,9 @@ const scene = new THREE.Scene()
  * Textures
  */
 const textureLoader = new THREE.TextureLoader()
+const matcapTexture = textureLoader.load('/textures/matcaps/5.png')
+const matcapTexture1 = textureLoader.load('/textures/matcaps/9.png')
+matcapTexture.colorSpace = THREE.SRGBColorSpace
 
 const windowColorTexture = textureLoader.load('textures/window/windowframe6.png')
 windowColorTexture.colorSpace = THREE.SRGBColorSpace
@@ -61,13 +66,6 @@ grassRoughnessTexture.wrapT = THREE.RepeatWrapping
 /**
  * House
  */
-// Temporary sphere
-// const sphere = new THREE.Mesh(
-//     new THREE.SphereGeometry(1, 32, 32),
-//     new THREE.MeshStandardMaterial({ roughness: 0.7 })
-// )
-// sphere.position.y = 1
-// scene.add(sphere)
 
 //Group
 const house = new THREE.Group()
@@ -115,6 +113,30 @@ door.position.z = 2 + 0.01
 house.add(door)
 
 
+// Roadway
+const roadwayGeometry = new THREE.PlaneGeometry( 2.2, 10);
+const roadwayMaterial = new THREE.MeshStandardMaterial({ color: '#808080', side: THREE.DoubleSide });
+const roadway = new THREE.Mesh(roadwayGeometry, roadwayMaterial);
+roadway.rotation.x = -Math.PI / 2; 
+roadway.position.set(0, 0.01, 5);
+scene.add(roadway);
+
+
+
+
+// White Lines
+const lineGeometry = new THREE.PlaneGeometry(0.1, 1); 
+const lineMaterial = new THREE.MeshStandardMaterial({ color: '#ffffff' }); 
+const numberOfLines = 4; 
+
+for (let i = 0; i < numberOfLines; i++) {
+    const line = new THREE.Mesh(lineGeometry, lineMaterial);
+    line.rotation.x = -Math.PI / 2; 
+    line.position.set(0, 0.05, 9 - i * 2); 
+    scene.add(line);
+}
+
+
 // Window
 const window1Geometry = new THREE.BoxGeometry(0.6, 0.8, 0.1);
 const window1Material = new THREE.MeshStandardMaterial({ map:windowColorTexture});
@@ -139,15 +161,42 @@ window2Mesh.position.x =-1.3
 const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.2, 1, 8);
 const trunkMaterial = new THREE.MeshStandardMaterial({ color: '#8B4513' });
 const trunkMesh = new THREE.Mesh(trunkGeometry, trunkMaterial);
-trunkMesh.position.set(-3, 0.5, 3); 
+trunkMesh.position.set(-3, 0.5, 3);
 scene.add(trunkMesh);
 
 // Tree leaves
 const leavesGeometry = new THREE.SphereGeometry(1, 16, 16);
 const leavesMaterial = new THREE.MeshStandardMaterial({ color: '#228B22' });
 const leavesMesh = new THREE.Mesh(leavesGeometry, leavesMaterial);
-leavesMesh.position.set(-3, 1.5, 3); 
+leavesMesh.position.set(-3, 1.5, 3);
 scene.add(leavesMesh);
+
+// Christmas lights on the tree
+const lights = [];
+
+for (let i = 0; i < 50; i++) {
+    const lightGeometry = new THREE.SphereGeometry(0.1);
+    const lightMaterial = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
+    const light = new THREE.Mesh(lightGeometry, lightMaterial);
+
+    const angle = (i / 50) * Math.PI * 2;
+    const radius = 2;
+    const x = Math.sin(angle) * radius;
+    const y = 1.5 + Math.cos(angle) * radius; 
+    const z = 3; 
+
+    light.position.set(x, y, z);
+    scene.add(light);
+    lights.push(light);
+}
+
+// Star on top of the tree
+const starGeometry = new THREE.TetrahedronGeometry(0.5);
+const starMaterial = new THREE.MeshStandardMaterial({ color: 'gold' });
+const star = new THREE.Mesh(starGeometry, starMaterial);
+star.position.set(-3, 2.5, 3); 
+scene.add(star);
+
 
 
 // Function to create a Christmas tree with LED lights and gifts
@@ -206,25 +255,36 @@ bush4.position.set(- 1, 0.05, 2.6)
 
 house.add(bush1, bush2, bush3, bush4)
 
-//graves
-const graves = new THREE.Mesh()
-scene.add(graves)
+// Create a group to hold the flowers
+const flowers = new THREE.Group();
+scene.add(flowers);
 
-const graveGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.2)
-const graveMaterial =new THREE.MeshStandardMaterial({color:'#b2b6b1'})
+const flowerGeometries = [
+  new THREE.SphereGeometry(0.2, 8, 8),   
+  new THREE.ConeGeometry(0.2, 0.5, 8),   
+];
 
-for (let i = 0; i < 50; i++)
-{
-    const angle = Math.random() * Math.PI * 2
-    const radius = 3 + Math.random() * 6
-    const x = Math.sin(angle) * radius
-    const z = Math.cos(angle) * radius
+const flowerMaterials = [
+  new THREE.MeshStandardMaterial({ color: '#ff6347' }),  
+  new THREE.MeshStandardMaterial({ color: 'Skyblue' }),  
 
-    const grave = new THREE.Mesh(graveGeometry, graveMaterial)
-    grave.position.set(x, 0.3, z)
-    grave.rotation.y = (Math.random() - 0.5) * 0.4
-    grave.rotation.z = (Math.random() - 0.5) * 0.4
-    graves.add(grave)
+];
+
+for (let i = 0; i < 50; i++) {
+  const angle = Math.random() * Math.PI * 2;
+  const radius = 3 + Math.random() * 6;
+  const x = Math.sin(angle) * radius;
+  const z = Math.cos(angle) * radius;
+
+
+  const randomGeometry = flowerGeometries[Math.floor(Math.random() * flowerGeometries.length)];
+  const randomMaterial = flowerMaterials[Math.floor(Math.random() * flowerMaterials.length)];
+
+  const flower = new THREE.Mesh(randomGeometry, randomMaterial);
+  flower.position.set(x, 0.3, z);
+  flower.rotation.y = (Math.random() - 0.5) * 0.4;
+  flower.rotation.z = (Math.random() - 0.5) * 0.4;
+  flowers.add(flower);
 }
 
 // Floor
@@ -241,9 +301,121 @@ floor.rotation.x = - Math.PI * 0.5
 floor.position.y = 0
 scene.add(floor)
 
+
+//FOnts
+const fontLoader = new FontLoader()
+
+fontLoader.load(
+    '/fonts/helvetiker_regular.typeface.json',
+    (font) =>
+    {
+        const textGeometry = new TextGeometry(
+            'Abhishek  Patel',
+            {
+                font: font,
+                size: 0.5,
+                height: 0.2,
+                curveSegments: 3,
+                bevelEnabled: true,
+                bevelThickness: 0.03,
+                bevelSize: 0.02,
+                bevelOffset: 0,
+                bevelSegments: 4
+            }
+        )
+        textGeometry.center()
+
+        const textMaterial = new THREE.MeshMatcapMaterial({matcap: matcapTexture})
+        //textMaterial.wireframe = true
+        const text = new THREE.Mesh(textGeometry, textMaterial)
+        
+        const circleCenter = new THREE.Vector3(0, 0, 0);
+        const circleRadius = 6;
+
+        const angle = -Math.PI / 4;
+        const textDistance = circleRadius + 1; 
+
+        const textX = circleCenter.x + textDistance * Math.cos(angle);
+        const textY = 1; 
+        const textZ = circleCenter.z + textDistance * Math.sin(angle);
+
+        text.position.set(textX, textY, textZ);
+        scene.add(text);
+
+    }
+    )
+
+
+ // Merry Christmas font
+fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
+    // Create text geometry
+    const textGeometry = new TextGeometry('Merry    Christmas', {
+        font: font,
+        size: 0.8,
+        height: 0.2,
+        curveSegments: 3,
+        bevelEnabled: true,
+        bevelThickness: 0.03,
+        bevelSize: 0.02,
+        bevelOffset: 0,
+        bevelSegments: 4
+    });
+
+    textGeometry.center();
+
+    // Create a material with emissive and color properties
+    const textMaterial = new THREE.MeshMatcapMaterial({matcap: matcapTexture1, color: 'white'});
+
+    // Create the mesh
+    const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+    // Set position, rotation, and add to the scene
+    const circleCenter = new THREE.Vector3(-3, 0, 13);
+    const circleRadius = 4;
+    const angle = -Math.PI / 4;
+    const textDistance = circleRadius + 2;
+    const textX = circleCenter.x + textDistance * Math.cos(angle);
+    const textY = 0.5;
+    const textZ = circleCenter.z + textDistance * Math.sin(angle);
+    textMesh.position.set(textX, textY, textZ);
+    scene.add(textMesh);
+   
+
+    // Snowfall animation
+    const snowflakes = [];
+
+    for (let i = 0; i < 100; i++) {
+        const snowflakeGeometry = new THREE.CircleGeometry(0.05, 6);
+        const snowflakeMaterial = new THREE.MeshBasicMaterial({ color: 'white' });
+        const snowflake = new THREE.Mesh(snowflakeGeometry, snowflakeMaterial);
+
+        snowflake.position.set(Math.random() * 20 - 10, Math.random() * 5 + 5, Math.random() * 20 - 10);
+        scene.add(snowflake);
+        snowflakes.push(snowflake);
+    }
+
+    const animateSnowfall = () => {
+        requestAnimationFrame(animateSnowfall);
+
+        // Update snowflake positions
+        for (const snowflake of snowflakes) {
+            snowflake.position.y -= 0.02;
+            if (snowflake.position.y < 0) {
+                snowflake.position.y = 5;
+            }
+        }
+
+        // Render the scene
+        renderer.render(scene, camera);
+    };
+
+    animateSnowfall();
+});
+  
+
 // Snowfall
 const snowflakeGeometry = new THREE.BufferGeometry();
-const snowflakeMaterial = new THREE.PointsMaterial({ color: '#ffffff', size: 0.05 });
+const snowflakeMaterial = new THREE.PointsMaterial({ color: '#ffffff', size: 0.02 });
 
 const snowflakeVertices = [];
 for (let i = 0; i < 1000; i++) {
@@ -496,7 +668,7 @@ scene.add(portal);
 
 // Floating Lanterns
 const lanternGeometry = new THREE.CylinderGeometry(0.2, 0.2, 2, 8);
-const lanternMaterial = new THREE.MeshStandardMaterial({ color: '#FFD700', emissive: '#FFD700' });
+const lanternMaterial = new THREE.MeshStandardMaterial({ color: 'white', emissive: 'red' });
 
 for (let i = 0; i < 10; i++) {
     const lantern = new THREE.Mesh(lanternGeometry, lanternMaterial);
@@ -558,41 +730,41 @@ const snowfallInsideGlobe = new THREE.Points(snowflakesGeometry, snowflakesMater
 snowGlobe.add(snowfallInsideGlobe);
 
 // Add a Cosmic Portal
-const cosmicPortalGeometry = new THREE.TorusGeometry(5, 0.2, 16, 100, Math.PI * 2);
-const cosmicPortalMaterial = new THREE.MeshStandardMaterial({ color: 'white', emissive: 'purple', side: THREE.DoubleSide });
-const cosmicPortal = new THREE.Mesh(cosmicPortalGeometry, cosmicPortalMaterial);
+// const cosmicPortalGeometry = new THREE.TorusGeometry(5, 0.2, 16, 100, Math.PI * 2);
+// const cosmicPortalMaterial = new THREE.MeshStandardMaterial({ color: 'white', emissive: 'purple', side: THREE.DoubleSide });
+// const cosmicPortal = new THREE.Mesh(cosmicPortalGeometry, cosmicPortalMaterial);
 
-// Set position to the center of the scene
-cosmicPortal.position.set(0, 0, 0);
+// // Set position to the center of the scene
+// cosmicPortal.position.set(0, 0, 0);
 
-scene.add(cosmicPortal);
+// scene.add(cosmicPortal);
 
 // Animate Cosmic Portal
-const animateCosmicPortal = () => {
-    cosmicPortal.rotation.y += 0.005;
-    requestAnimationFrame(animateCosmicPortal);
-};
+// const animateCosmicPortal = () => {
+//     cosmicPortal.rotation.y += 0.005;
+//     requestAnimationFrame(animateCosmicPortal);
+// };
 
-animateCosmicPortal();
+// animateCosmicPortal();
 
 
 // Add a Cosmic Portal
-const cosmicPortal1Geometry = new THREE.TorusGeometry(10, 0.2, 16, 100, Math.PI * 2);
-const cosmicPortal1Material = new THREE.MeshStandardMaterial({ color: 'white', emissive: 'red', side: THREE.DoubleSide });
-const cosmicPortal1 = new THREE.Mesh(cosmicPortal1Geometry, cosmicPortal1Material);
-cosmicPortal1.rotation.x = Math.PI / 3
-// Set position to the center of the scene
-cosmicPortal1.position.set(0, 0, 0);
+// const cosmicPortal1Geometry = new THREE.TorusGeometry(10, 0.2, 16, 100, Math.PI * 2);
+// const cosmicPortal1Material = new THREE.MeshStandardMaterial({ color: 'white', emissive: 'red', side: THREE.DoubleSide });
+// const cosmicPortal1 = new THREE.Mesh(cosmicPortal1Geometry, cosmicPortal1Material);
+// cosmicPortal1.rotation.x = Math.PI / 3
+// // Set position to the center of the scene
+// cosmicPortal1.position.set(0, 0, 0);
 
-scene.add(cosmicPortal1);
+// scene.add(cosmicPortal1);
 
 // Animate Cosmic Portal
-const animateCosmicPortal1 = () => {
-    cosmicPortal1.rotation.y -= 0.005;
-    requestAnimationFrame(animateCosmicPortal1);
-};
+// const animateCosmicPortal1 = () => {
+//     cosmicPortal1.rotation.y -= 0.5;
+//     requestAnimationFrame(animateCosmicPortal1);
+// };
 
-animateCosmicPortal1();
+// animateCosmicPortal1();
 
 
 
@@ -613,9 +785,6 @@ for (let i = 0; i < 1000; i++) {
 starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
 const starField = new THREE.Points(starsGeometry, starsMaterial);
 scene.add(starField);
-
-
-// Create Santa
 
 
 /**
@@ -734,7 +903,7 @@ bush4.castShadow = true
 for(let i = 0; i < 50; i++)
 {
     // ...
-    graves.castShadow = true
+    flowers.castShadow = true
     // ...
 }
 
