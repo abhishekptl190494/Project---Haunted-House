@@ -399,6 +399,22 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
     animateSnowfall();
 });
 
+// Snowfall
+const snowflakeGeometry = new THREE.BufferGeometry();
+const snowflakeMaterial = new THREE.PointsMaterial({ color: '#ffffff', size: 0.02 });
+
+const snowflakeVertices = [];
+for (let i = 0; i < 1000; i++) {
+    const x = (Math.random() - 0.5) * 20;
+    const y = Math.random() * 10;
+    const z = (Math.random() - 0.5) * 20;
+    snowflakeVertices.push(x, y, z);
+}
+
+snowflakeGeometry.setAttribute('position', new THREE.Float32BufferAttribute(snowflakeVertices, 3));
+const snowfall = new THREE.Points(snowflakeGeometry, snowflakeMaterial);
+scene.add(snowfall);
+
 
 // Snowman
     const snowmanBodyGeometry = new THREE.SphereGeometry(0.5, 32, 32);
@@ -637,23 +653,6 @@ for (let i = 0; i < 10; i++) {
 
     lanternRotateAnimation();
 }
-
-// Mystical Glow
-const glowGeometry = new THREE.SphereGeometry(8, 32, 32);
-const glowMaterial = new THREE.MeshBasicMaterial({ color: '#00FF00', transparent: true, opacity: 0.1 });
-const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-glow.position.set(0, 0.2, 0);
-scene.add(glow);
-
-// Animate the glow
-const animateGlow = () => {
-    const time = performance.now() * 0.001;
-    const glowIntensity = Math.sin(time) * 0.1 + 0.1;
-    glowMaterial.opacity = glowIntensity;
-    requestAnimationFrame(animateGlow);
-};
-
-animateGlow();
 
 // Add a Snow Globe
 const snowGlobeGeometry = new THREE.SphereGeometry(3, 32, 32);
