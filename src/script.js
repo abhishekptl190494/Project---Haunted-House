@@ -175,6 +175,7 @@ const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.2, 1, 8);
 const leavesGeometry = new THREE.SphereGeometry(1, 16, 16);
 const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
 const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
+const trunkMesh = new THREE.Mesh(trunkGeometry, trunkMaterial);
 leaves.position.y = 1;
 const tree = new THREE.Group();
 tree.add(trunk, leaves);
@@ -210,18 +211,16 @@ for (let i = 0; i < 50; i++) {
 
 
 // Function to create a Christmas tree with LED lights and gifts
+const treeGeometry = new THREE.ConeGeometry(1.5, 3, 8);
+const treeMaterial = new THREE.MeshStandardMaterial({ color: '#228B22' });
+const treeMesh = new THREE.Mesh(treeGeometry, treeMaterial);
 function createChristmasTreeWithLEDs(x, z) {
     // Christmas tree trunk
-    const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.2, 1, 8);
-    const trunkMaterial = new THREE.MeshStandardMaterial({ color: '#8B4513' });
-    const trunkMesh = new THREE.Mesh(trunkGeometry, trunkMaterial);
     trunkMesh.position.set(-6, 0.5, 6);
     scene.add(trunkMesh);
 
     // Christmas tree leaves (cone shape)
-    const treeGeometry = new THREE.ConeGeometry(1.5, 3, 8);
-    const treeMaterial = new THREE.MeshStandardMaterial({ color: '#228B22' });
-    const treeMesh = new THREE.Mesh(treeGeometry, treeMaterial);
+ 
     treeMesh.position.set(-6, 2.3, 6);
     scene.add(treeMesh);
 
@@ -362,7 +361,7 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
     });
 
     textGeometry.center();
-    const textMaterial = new THREE.MeshMatcapMaterial({matcap: matcapTexture1, color: 'white'});
+    const textMaterial = new THREE.MeshMatcapMaterial({matcap: matcapTexture1, color:'#ffffff'});
 
     // Create the mesh
     const textMesh = new THREE.Mesh(textGeometry, textMaterial);
@@ -381,9 +380,11 @@ fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
     // Snowfall animation
     const snowflakes = [];
 
+     const snowflakeGeometry = new THREE.CircleGeometry(0.05, 6);
+     const snowflakeMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff' });
+
     for (let i = 0; i < 100; i++) {
-        const snowflakeGeometry = new THREE.CircleGeometry(0.05, 6);
-        const snowflakeMaterial = new THREE.MeshBasicMaterial({ color: 'white' });
+        
         const snowflake = new THREE.Mesh(snowflakeGeometry, snowflakeMaterial);
 
         snowflake.position.set(Math.random() * 20 - 10, Math.random() * 5 + 5, Math.random() * 20 - 10);
