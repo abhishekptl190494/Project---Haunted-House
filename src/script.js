@@ -1,10 +1,10 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
-
-
-
+import {createTextMesh, createChristmasText, animateSnowfall, createSnowfall } from './text-snowfall.js'
+import { setupTimeMachine } from './time-machine.js';
+import { makeLantern, starrySky } from './lantern.js'
+import { ufo, hotAirBaloon } from './UFO.js'
+import { snowman, fountainLight } from './snowman.js';
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -19,8 +19,6 @@ const scene = new THREE.Scene()
 /**
  * Textures
  */
-
-
 const textureLoader = new THREE.TextureLoader()
 
 function loadTexture(path) {
@@ -90,8 +88,6 @@ const doorMaterial = new THREE.MeshStandardMaterial({
 
 const roofMaterial = new THREE.MeshStandardMaterial({ color: '#b35f45' });
 
-const rotatingPartMaterial = new THREE.MeshStandardMaterial({ color: '#ff33cc' });
-
 const windowMaterial = new THREE.MeshStandardMaterial({
     map: windowColorTexture,
     color: 'gray',
@@ -103,13 +99,11 @@ const floorMaterial = new THREE.MeshStandardMaterial({
     normalMap: grassNormalTexture,
     roughnessMap: grassRoughnessTexture });
 
-// Define reusable geometries
 const wallGeometry = new THREE.BoxGeometry(4, 2.5, 4);
 const roofGeometry = new THREE.ConeGeometry(3.5, 1, 4);
 const window1Geometry = new THREE.BoxGeometry(0.6, 0.8, 0.1);
 const window2Geometry = new THREE.BoxGeometry(-0.6, 0.8, -0.1);
 const floorGeometry = new THREE.PlaneGeometry(20, 20);
-const rotatingPartGeometry = new THREE.BoxGeometry(0.5, 0.1, 0.5);
 
 
 //Group
@@ -306,208 +300,21 @@ for (let i = 0; i < numFlowers; i++) {
     scene.add(floor);
 
 //FOnts
-const fontLoader = new FontLoader()
-
-fontLoader.load(
-    '/fonts/helvetiker_regular.typeface.json',
-    (font) =>
-    {
-        const textGeometry = new TextGeometry(
-            'Abhishek  Patel',
-            {
-                font: font,
-                size: 0.5,
-                height: 0.2,
-                curveSegments: 3,
-                bevelEnabled: true,
-                bevelThickness: 0.03,
-                bevelSize: 0.02,
-                bevelOffset: 0,
-                bevelSegments: 4
-            }
-        )
-        textGeometry.center()
-
-        const textMaterial = new THREE.MeshMatcapMaterial({matcap: matcapTexture})
-        //textMaterial.wireframe = true
-        const text = new THREE.Mesh(textGeometry, textMaterial)
-        
-        const circleCenter = new THREE.Vector3(0, 0, 0);
-        const circleRadius = 6;
-        const angle = -Math.PI / 4;
-        const textDistance = circleRadius + 1; 
-        const textX = circleCenter.x + textDistance * Math.cos(angle);
-        const textY = 1; 
-        const textZ = circleCenter.z + textDistance * Math.sin(angle);
-        text.position.set(textX, textY, textZ);
-        scene.add(text);
-
-    }
-    )
-
- // Merry Christmas font
-fontLoader.load('/fonts/helvetiker_regular.typeface.json', (font) => {
-    // Create text geometry
-    const textGeometry = new TextGeometry('Merry    Christmas', {
-        font: font,
-        size: 0.8,
-        height: 0.2,
-        curveSegments: 3,
-        bevelEnabled: true,
-        bevelThickness: 0.03,
-        bevelSize: 0.02,
-        bevelOffset: 0,
-        bevelSegments: 4
-    });
-
-    textGeometry.center();
-    const textMaterial = new THREE.MeshMatcapMaterial({matcap: matcapTexture1, color:'#ffffff'});
-
-    // Create the mesh
-    const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-
-    const circleCenter = new THREE.Vector3(-3, 0, 13);
-    const circleRadius = 4;
-    const angle = -Math.PI / 4;
-    const textDistance = circleRadius + 2;
-    const textX = circleCenter.x + textDistance * Math.cos(angle);
-    const textY = 0.5;
-    const textZ = circleCenter.z + textDistance * Math.sin(angle);
-    textMesh.position.set(textX, textY, textZ);
-    scene.add(textMesh);
-   
-
-    // Snowfall animation
-    const snowflakes = [];
-
-     const snowflakeGeometry = new THREE.CircleGeometry(0.05, 6);
-     const snowflakeMaterial = new THREE.MeshBasicMaterial({ color: '#ffffff' });
-
-    for (let i = 0; i < 100; i++) {
-        
-        const snowflake = new THREE.Mesh(snowflakeGeometry, snowflakeMaterial);
-
-        snowflake.position.set(Math.random() * 20 - 10, Math.random() * 5 + 5, Math.random() * 20 - 10);
-        scene.add(snowflake);
-        snowflakes.push(snowflake);
-    }
-
-    const animateSnowfall = () => {
-        requestAnimationFrame(animateSnowfall);
-
-        // Update snowflake positions
-        for (const snowflake of snowflakes) {
-            snowflake.position.y -= 0.1;
-            if (snowflake.position.y < 0) {
-                snowflake.position.y = 5;
-            }
-        }
-
-        // Render the scene
-        renderer.render(scene, camera);
-    };
-
-    animateSnowfall();
-});
+createTextMesh(scene, matcapTexture);
+createChristmasText(scene, matcapTexture1);
+animateSnowfall(scene);
 
 // Snowfall
-const snowflakeGeometry = new THREE.BufferGeometry();
-const snowflakeMaterial = new THREE.PointsMaterial({ color: '#ffffff', size: 0.02 });
-
-const snowflakeVertices = [];
-for (let i = 0; i < 1000; i++) {
-    const x = (Math.random() - 0.5) * 20;
-    const y = Math.random() * 10;
-    const z = (Math.random() - 0.5) * 20;
-    snowflakeVertices.push(x, y, z);
-}
-
-snowflakeGeometry.setAttribute('position', new THREE.Float32BufferAttribute(snowflakeVertices, 3));
-const snowfall = new THREE.Points(snowflakeGeometry, snowflakeMaterial);
-scene.add(snowfall);
-
+createSnowfall(scene)
 
 // Snowman
-// Snowman body and head
-const snowmanBodyGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-const snowmanHeadGeometry = new THREE.SphereGeometry(0.3, 32, 32);
-const snowmanMaterial = new THREE.MeshStandardMaterial({ color: '#ffffff' });
-
-const snowmanBody = new THREE.Mesh(snowmanBodyGeometry, snowmanMaterial);
-snowmanBody.position.set(5, 0.5, 5);
-scene.add(snowmanBody);
-
-const snowmanHead = new THREE.Mesh(snowmanHeadGeometry, snowmanMaterial);
-snowmanHead.position.set(5, 1.3, 5);
-scene.add(snowmanHead);
-
-// Nose
-const noseGeometry = new THREE.ConeGeometry(0.08, 0.5, 32);
-const noseMaterial = new THREE.MeshStandardMaterial({ color: '#ff6600' });
-
-const nose = new THREE.Mesh(noseGeometry, noseMaterial);
-nose.rotation.x = Math.PI / 2;
-nose.position.set(5, 1.2, 5.2);
-scene.add(nose);
-
-// Cap
-const capGeometry = new THREE.ConeGeometry(0.35, 0.2, 32);
-const capMaterial = new THREE.MeshStandardMaterial({ color: '#ff0000' });
-
-const cap = new THREE.Mesh(capGeometry, capMaterial);
-cap.rotation.x = Math.PI / 2;
-cap.position.set(5, 1.6, 5);
-scene.add(cap);
-
+snowman(scene)
 
  // UFO with Aliens
-
-    const ufoDiscGeometry = new THREE.TorusGeometry(1.5, 0.4, 16, 32);
-    const ufoDiscMaterial = new THREE.MeshStandardMaterial({
-        color: '#00ff00',
-        emissive: '#00ff00',
-        metalness: 0.9,
-        roughness: 0.1,
-        side: THREE.DoubleSide
-    });
-    const ufoDisc = new THREE.Mesh(ufoDiscGeometry, ufoDiscMaterial);
-    ufoDisc.rotation.x = Math.PI / 2; 
-    ufoDisc.position.set(-5, 4, -12);
-    scene.add(ufoDisc);
-
-    const ufoDomeGeometry = new THREE.SphereGeometry(1, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2);
-    const ufoDomeMaterial = new THREE.MeshStandardMaterial({
-        color: '#00ff00',
-        emissive: '#00ff00',
-        metalness: 0.9,
-        roughness: 0.1,
-        side: THREE.DoubleSide
-    });
-    const ufoDome = new THREE.Mesh(ufoDomeGeometry, ufoDomeMaterial);
-    ufoDome.position.y = 0.4; 
-    ufoDisc.add(ufoDome); 
-
-    const alienGeometry = new THREE.SphereGeometry(0.2, 32, 32);
-    const alienMaterial = new THREE.MeshStandardMaterial({
-        color: '#ff00ff',
-        metalness: 0.7,
-        roughness: 0.2
-    });
-
-    for (let i = 0; i < 5; i++) {
-        const angle = (i / 5) * Math.PI * 2;
-        const radius = 1.2;
-        const alien = new THREE.Mesh(alienGeometry, alienMaterial);
-        alien.position.set(Math.cos(angle) * radius, 0.5, Math.sin(angle) * radius);
-        ufoDisc.add(alien); 
-    }
+ ufo(scene)
 
 // Hot Air Balloon
-const balloon1Geometry = new THREE.SphereGeometry(0.5, 16, 16);
-const balloon1Material = new THREE.MeshStandardMaterial({ color: '#ff6600', metalness: 0.3, roughness: 0.7 });
-const balloon = new THREE.Mesh(balloon1Geometry, balloon1Material);
-balloon.position.set(8, 5, -8);
-scene.add(balloon);
+hotAirBaloon(scene)
 
 
 // Moon
@@ -517,147 +324,25 @@ const moon = new THREE.Mesh(moonGeometry, moonMaterial);
 moon.position.set(10, 10, -10);
 scene.add(moon);
 
-// Create Fountain Base
-const fountainBase = createCylinder('#8B4513', 1, 0.2, 5, 0.2, 5);
-scene.add(fountainBase);
+// Fountain Base
+fountainLight(scene)
 
-// Colored Lights for the Fountain
-const fountainLights = createFountainLights(8, 1, 2, 1.2, 5, 0.4);
-
-// Animate Fountain Lights
-const animateFountainLights = () => {
-    const time = performance.now() * 0.001;
-
-    for (let i = 0; i < fountainLights.length; i++) {
-        const light = fountainLights[i];
-        const angle = time * (1 + i * 0.1);
-        const radius = 1.2;
-
-        const sinValue = Math.sin(angle);
-        const cosValue = Math.cos(angle);
-
-        light.position.set(sinValue * radius + 5, 0.4, cosValue * radius + 5);
-    }
-    requestAnimationFrame(animateFountainLights);
-};
-
-animateFountainLights();
-
-// Function to create a cylinder
-function createCylinder(color, radiusTop, height, x, y, z) {
-    const geometry = new THREE.CylinderGeometry(radiusTop, radiusTop, height, 16);
-    const material = new THREE.MeshStandardMaterial({ color });
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(x, y, z);
-    return mesh;
-}
-
-// Function to create colored lights for the fountain
-function createFountainLights(count, intensity, distance, radius, x, y) {
-    const lights = [];
-
-    for (let i = 0; i < count; i++) {
-        const angle = (i / count) * Math.PI * 2;
-        const sinValue = Math.sin(angle);
-        const cosValue = Math.cos(angle);
-
-        const light = new THREE.PointLight(Math.random() * 0xffffff, intensity, distance);
-        light.position.set(sinValue * radius + x, y, cosValue * radius + y);
-        scene.add(light);
-        lights.push(light);
-    }
-
-    return lights;
-}
-
-
-// Time Machine
-const timeMachineGroup = new THREE.Group();
-scene.add(timeMachineGroup);
-
-// Base
-const baseGeometry = new THREE.BoxGeometry(1.5, 0.2, 1.5);
-const baseMaterial = new THREE.MeshStandardMaterial({ color: '#3333ff' });
-const base = new THREE.Mesh(baseGeometry, baseMaterial);
-timeMachineGroup.add(base);
-
-// Rotating Components
-const createRotatingPart = (position) => {
-    const rotatingPart = new THREE.Mesh(rotatingPartGeometry, rotatingPartMaterial);
-    rotatingPart.position.copy(position);
-    timeMachineGroup.add(rotatingPart);
-    return rotatingPart;
-};
-
-const rotatingPart1 = createRotatingPart(new THREE.Vector3(0, 0.25, 0.5));
-const rotatingPart2 = createRotatingPart(new THREE.Vector3(0, 0.25, -0.5));
-
-// Dynamic Lights
-const createLight = (color, position) => {
-    const light = new THREE.PointLight(color, 1, 3);
-    light.position.copy(position);
-    timeMachineGroup.add(light);
-    return light;
-};
-
-const timeMachineLight1 = createLight('#ffcc00', new THREE.Vector3(0, 0.35, 0.8));
-const timeMachineLight2 = createLight('#ffcc00', new THREE.Vector3(0, 0.35, -0.8));
-
-// Position beside the house
-timeMachineGroup.position.set(5, 0);
-
-// Add a subtle rotation animation to the rotating parts
-const rotateAnimation = () => {
-    rotatingPart1.rotation.y += 0.02;
-    rotatingPart2.rotation.y -= 0.02;
-    requestAnimationFrame(rotateAnimation);
-};
-
-rotateAnimation();
+ // Time Machine
+setupTimeMachine(scene)
 
 // Add a rainbow
 const rainbowGeometry = new THREE.TorusGeometry(10, 0.1, 16, 100, Math.PI * 2);
-const rainbowMaterial = new THREE.MeshStandardMaterial({ color: '#ff0000', emissive: '#ff9900', side: THREE.DoubleSide });
+const rainbowMaterial = new THREE.MeshStandardMaterial({ color: '#ff9900', emissive: '#ff9900', side: THREE.DoubleSide });
 const rainbow = new THREE.Mesh(rainbowGeometry, rainbowMaterial);
 rainbow.rotation.x = Math.PI / 3;
 scene.add(rainbow);
 
 // Floating Lanterns
-const lanternGeometry = new THREE.CylinderGeometry(0.2, 0.2, 2, 8);
-const lanternMaterial = new THREE.MeshStandardMaterial({ color: 'white', emissive: 'red' });
-
-// Function to create lanterns
-const createLantern = () => {
-    const lantern = new THREE.Mesh(lanternGeometry, lanternMaterial);
-    const lanternX = Math.random() * 10 - 5;
-    const lanternY = Math.random() * 5 + 3;
-    const lanternZ = Math.random() * 10 - 5;
-    lantern.position.set(lanternX, lanternY, lanternZ);
-    scene.add(lantern);
-};
-
-// Create 10 lanterns
-for (let i = 0; i < 15; i++) {
-    createLantern();
-}
+makeLantern(scene);
 
 
 // Add a Starry Sky
-const starsGeometry = new THREE.BufferGeometry();
-const starsMaterial = new THREE.PointsMaterial({ color: 'red', size: 0.1 });
-
-const starsVertices = [];
-for (let i = 0; i < 1000; i++) {
-    const x = (Math.random() - 0.5) * 50;
-    const y = (Math.random() - 0.5) * 20;
-    const z = (Math.random() - 0.5) * 50;
-    starsVertices.push(x, y, z);
-}
-
-starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
-const starField = new THREE.Points(starsGeometry, starsMaterial);
-scene.add(starField);
-
+starrySky(scene)
 
 /**
  * Lights
