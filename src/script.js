@@ -370,7 +370,6 @@ scene.add(ghost1)
 const ghost2 = new THREE.PointLight('#00ffff', 6, 3)
 scene.add(ghost2)
 
-
 const ghost3 = new THREE.PointLight('#ffff00', 6, 3)
 scene.add(ghost3)
 
@@ -414,9 +413,9 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 4
-camera.position.y = 2
-camera.position.z = 5
+camera.position.x = 0
+camera.position.y = 5
+camera.position.z = 15
 scene.add(camera)
 
 // Controls
