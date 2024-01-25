@@ -5,6 +5,13 @@ import { setupTimeMachine } from './time-machine.js';
 import { makeLantern, starrySky } from './lantern.js'
 import { ufo, hotAirBaloon } from './UFO.js'
 import { snowman, fountainLight } from './snowman.js';
+import Stats from 'stats.js'
+
+
+//Stats
+const stats = new Stats()
+stats.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild(stats.dom)
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -482,6 +489,7 @@ const clock = new THREE.Clock()
 
 const tick = () =>
 {
+    stats.begin()
     const elapsedTime = clock.getElapsedTime()
 
     //ghosts
@@ -513,6 +521,8 @@ const tick = () =>
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
+
+    stats.end()
 }
 
 tick()
