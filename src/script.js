@@ -319,7 +319,7 @@ hotAirBaloon(scene)
 
 // Moon
 const moonGeometry = new THREE.SphereGeometry(1, 32, 32);
-const moonMaterial = new THREE.MeshBasicMaterial({ color: '#e6e6e6', emissive: '#ffe4b5', emissiveIntensity: 0.5 });
+const moonMaterial = new THREE.MeshBasicMaterial({ color: '#e6e6e6'});
 const moon = new THREE.Mesh(moonGeometry, moonMaterial);
 moon.position.set(10, 10, -10);
 scene.add(moon);

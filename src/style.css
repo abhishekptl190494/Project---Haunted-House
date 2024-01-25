@@ -2,12 +2,16 @@
 {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 html,
 body
 {
     overflow: hidden;
+    background-color: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
 }
 
 .webgl
@@ -16,4 +20,9 @@ body
     top: 0;
     left: 0;
     outline: none;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(to bottom, #000, #333);
+    opacity: 0.8;
+    z-index: -1;
 }

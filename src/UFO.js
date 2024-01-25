@@ -57,5 +57,4 @@ export const hotAirBaloon = (scene) =>
      const basket = new THREE.Mesh(basketGeometry, basketMaterial);
      basket.position.set(8, 4.6, -8);
      scene.add(basket);
-     
-}
+     }
