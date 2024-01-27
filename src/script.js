@@ -215,27 +215,33 @@ for (let i = 0; i < 50; i++) {
 const treeGeometry = new THREE.ConeGeometry(1.5, 3, 8);
 const treeMaterial = new THREE.MeshStandardMaterial({ color: '#228B22' });
 const treeMesh = new THREE.Mesh(treeGeometry, treeMaterial);
-function createChristmasTreeWithLEDs(x, z) {
     // Christmas tree trunk
     trunkMesh.position.set(-6, 0.5, 6);
     scene.add(trunkMesh);
 
     // Christmas tree leaves (cone shape)
- 
     treeMesh.position.set(-6, 2.3, 6);
     scene.add(treeMesh);
 
+const giftGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+const giftMaterial = new THREE.MeshStandardMaterial({ color: '#ff0000' });
+
+
+function createChristmasTreeWithLEDs(x, z) {
     // Gifts under the tree
-    for (let l = 0; l < 5; l++) {
-        const giftGeometry = new THREE.BoxGeometry(0.4, 0.4, 0.4);
-        const giftMaterial = new THREE.MeshStandardMaterial({ color: '#ff0000' });
+    const giftPositions = [
+        { x: x - 0.5, y: 0.2, z: z - 0.5 },
+        { x: x + 0.5, y: 0.2, z: z + 0.5 },
+        { x: x - 0.5, y: 0.2, z: z + 0.5 },
+        { x: x + 0.5, y: 0.2, z: z - 0.5 },
+        { x: x, y: 0.2, z: z }
+    ];
+
+    giftPositions.forEach(position => {
         const giftMesh = new THREE.Mesh(giftGeometry, giftMaterial);
-        const giftX = x + (Math.random() - 0.5) * 2;
-        const giftY = 0.2;
-        const giftZ = z + (Math.random() - 0.5) * 2;
-        giftMesh.position.set(giftX, giftY, giftZ);
+        giftMesh.position.set(position.x, position.y, position.z);
         scene.add(giftMesh);
-    }
+    });
 }
 
 // Create a Christmas tree with LEDs and gifts at a location far from the house
@@ -284,21 +290,26 @@ const numGeometries = flowerGeometries.length;
 const numMaterials = flowerMaterials.length;
 const numFlowers = 100;
 
+const flowerPositions = [];
+
 for (let i = 0; i < numFlowers; i++) {
     const angle = Math.random() * Math.PI * 2;
     const radius = 3 + Math.random() * 6;
     const x = Math.sin(angle) * radius;
     const z = Math.cos(angle) * radius;
+    flowerPositions.push({ x, z });
+}
 
+flowerPositions.forEach(({ x, z }) => {
     const randomGeometry = flowerGeometries[Math.floor(Math.random() * numGeometries)];
     const randomMaterial = flowerMaterials[Math.floor(Math.random() * numMaterials)];
 
-  const flower = new THREE.Mesh(randomGeometry, randomMaterial);
-  flower.position.set(x, 0.3, z);
-  flower.rotation.y = (Math.random() - 0.5) * 0.4;
-  flower.rotation.z = (Math.random() - 0.5) * 0.4;
-  flowers.add(flower);
-}
+    const flower = new THREE.Mesh(randomGeometry, randomMaterial);
+    flower.position.set(x, 0.3, z);
+    flower.rotation.y = (Math.random() - 0.5) * 0.4;
+    flower.rotation.z = (Math.random() - 0.5) * 0.4;
+    flowers.add(flower);
+});
 
 // Floor
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -326,7 +337,7 @@ hotAirBaloon(scene)
 
 // Moon
 const moonGeometry = new THREE.SphereGeometry(1, 32, 32);
-const moonMaterial = new THREE.MeshBasicMaterial({ color: '#e6e6e6'});
+const moonMaterial = new THREE.MeshBasicMaterial({ color: '#e6e6e6', emissive: '#ffffff', emissiveIntensity: 0.5});
 const moon = new THREE.Mesh(moonGeometry, moonMaterial);
 moon.position.set(10, 10, -10);
 scene.add(moon);
@@ -380,13 +391,13 @@ scene.add(ghost2)
 const ghost3 = new THREE.PointLight('#ffff00', 6, 3)
 scene.add(ghost3)
 
-// Christmas lights surrounding the grass border
-for (let i = 0; i < 50; i++) {
-    const light = new THREE.PointLight('#ff0000', 1, 2);
-    const angle = (i / 50) * Math.PI * 2;
-    const radius = 8;
+const angles = Array.from({ length: 50 }, (_, i) => (i / 50) * Math.PI * 2);
+const radius = 8;
+
+for (const angle of angles) {
     const x = Math.sin(angle) * radius;
     const z = Math.cos(angle) * radius;
+    const light = new THREE.PointLight('#ff0000', 1, 2);
     light.position.set(x, 0.1, z);
     scene.add(light);
 }
@@ -457,12 +468,6 @@ bush2.castShadow = true
 bush3.castShadow = true
 bush4.castShadow = true
 
-for(let i = 0; i < 50; i++)
-{
-    // ...
-    flowers.castShadow = true
-    // ...
-}
 
 floor.receiveShadow = true
 
